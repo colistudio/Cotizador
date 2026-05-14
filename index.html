@@ -227,25 +227,25 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
 <div class="user-bar hidden" id="user-bar">
   <div class="user-info">Hola, <strong id="ub-nombre">—</strong> &nbsp;·&nbsp; <span id="ub-rol" style="color:var(--gold-lt)"></span></div>
   <div class="user-bar-btns">
-    <button class="ub-btn admin" id="ub-admin-btn" onclick="openAdmin()" style="display:none">⚙ Panel Admin</button>
+    <button class="ub-btn admin" id="ub-admin-btn" onclick="openAdmin()" style="display:none">&#9881; Panel Admin</button>
     <button class="ub-btn" onclick="doLogout()">Cerrar sesión</button>
   </div>
 </div>
 
 <!-- SAVE BANNER -->
-<div class="save-banner" id="save-banner">✓ Cotización guardada correctamente</div>
+<div class="save-banner" id="save-banner">&#10003; Cotización guardada correctamente</div>
 
 <!-- ADMIN PANEL -->
 <div id="admin-panel">
   <div class="admin-box">
     <div class="admin-hdr">
       <div class="admin-hdr-title">Panel de Administración — Coli Studio</div>
-      <button class="admin-close" onclick="closeAdmin()">✕ Salir</button>
+      <button class="admin-close" onclick="closeAdmin()">&#10005; Salir</button>
     </div>
     <div class="admin-tabs">
-      <div class="admin-tab active" onclick="adminTab('quotes')">📋 Cotizaciones</div>
-      <div class="admin-tab" onclick="adminTab('users')">👥 Usuarios</div>
-      <div class="admin-tab" onclick="adminTab('stats')">📊 Estadísticas</div>
+      <div class="admin-tab active" onclick="adminTab('quotes')">&#128203; Cotizaciones</div>
+      <div class="admin-tab" onclick="adminTab('users')">&#128101; Usuarios</div>
+      <div class="admin-tab" onclick="adminTab('stats')">&#128202; Estadísticas</div>
     </div>
     <div class="admin-body">
 
@@ -260,7 +260,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
               <option value="cerrado">Cerrado</option>
               <option value="perdido">Perdido</option>
             </select>
-            <button class="ub-btn" onclick="loadQuotes()">↻ Actualizar</button>
+            <button class="ub-btn" onclick="loadQuotes()">&#8635; Actualizar</button>
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -473,8 +473,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
 
   <div class="section full">
     <div class="section-body">
-      <button class="btn-propuesta" onclick="guardarCotizacion()" style="background:var(--blue);color:white;margin-bottom:0.75rem;font-size:0.95rem;letter-spacing:2px" data-t="save_quote">💾 &nbsp; GUARDAR COTIZACIÓN</button>
-      <button class="btn-propuesta" onclick="verPropuesta()" data-t="generate_proposal">▶ &nbsp; GENERAR PROPUESTA PARA EL CLIENTE</button>
+      <button class="btn-propuesta" onclick="guardarCotizacion()" style="background:var(--blue);color:white;margin-bottom:0.75rem;font-size:0.95rem;letter-spacing:2px" data-t="save_quote">&#128190; &nbsp; GUARDAR COTIZACIÓN</button>
+      <button class="btn-propuesta" onclick="verPropuesta()" data-t="generate_proposal">&#9658; &nbsp; GENERAR PROPUESTA PARA EL CLIENTE</button>
     </div>
   </div>
 
@@ -486,9 +486,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
 <div class="container" style="grid-template-columns:1fr">
   <div>
     <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
-      <button class="back-btn" onclick="volverCotizador()" data-t="back_btn">← Volver al cotizador</button>
-      <button class="back-btn" id="btn-pdf" onclick="descargarPDF()" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:700" data-t="pdf_client">⬇ PDF Cliente</button>
-      <button class="back-btn" id="btn-ops" onclick="descargarOPS()" style="background:var(--blue);color:white;border-color:var(--blue);font-weight:700" data-t="pdf_ops">⬇ PDF Operaciones</button>
+      <button class="back-btn" onclick="volverCotizador()" data-t="back_btn">&#8592; Volver al cotizador</button>
+      <button class="back-btn" id="btn-pdf" onclick="descargarPDF()" style="background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:700" data-t="pdf_client">&#11015; PDF Cliente</button>
+      <button class="back-btn" id="btn-ops" onclick="descargarOPS()" style="background:var(--blue);color:white;border-color:var(--blue);font-weight:700" data-t="pdf_ops">&#11015; PDF Operaciones</button>
     </div>
 
     <div class="propuesta-card" id="propuesta-card">
@@ -540,7 +540,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
             <div style="font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:0.4rem" data-t="draw_signature">Firma (dibuja con el dedo o mouse)</div>
             <canvas id="firma-canvas" width="320" height="120" style="border:1.5px solid var(--border);border-radius:4px;background:#fafaf8;cursor:crosshair;touch-action:none;display:block;width:100%"></canvas>
             <div style="display:flex;gap:0.5rem;margin-top:0.4rem">
-              <button onclick="limpiarFirma()" style="font-size:0.7rem;padding:0.25rem 0.75rem;border:1px solid var(--border);background:white;border-radius:3px;cursor:pointer;color:var(--gray)" data-t="clear_signature">✕ Limpiar</button>
+              <button onclick="limpiarFirma()" style="font-size:0.7rem;padding:0.25rem 0.75rem;border:1px solid var(--border);background:white;border-radius:3px;cursor:pointer;color:var(--gray)" data-t="clear_signature">&#10005; Limpiar</button>
               <span id="firma-status" style="font-size:0.68rem;color:var(--gray);align-self:center;font-style:italic"></span>
             </div>
           </div>
@@ -683,14 +683,14 @@ const T = {
     extras_title:"Extras y Costos Adicionales", return_projection:"Proyección de Retorno",
     concept:"CONCEPTO", year1:"AÑO 1", year5:"AÑO 5", year10:"AÑO 10",
     min_wages_label:"salarios mínimos anuales",
-    generate_proposal:"▶  GENERAR PROPUESTA PARA EL CLIENTE",
-    back_btn:"← Volver al cotizador", pdf_client:"⬇ PDF Cliente", pdf_ops:"⬇ PDF Operaciones",
+    generate_proposal:"&#9658;  GENERAR PROPUESTA PARA EL CLIENTE",
+    back_btn:"&#8592; Volver al cotizador", pdf_client:"&#11015; PDF Cliente", pdf_ops:"&#11015; PDF Operaciones",
     prop_sub:"Smart Builds · Phoenix, Arizona · HB 2720", prop_title:"Propuesta de Proyecto",
     client_label:"Cliente", your_project:"Tu Proyecto", surface:"Superficie",
     included_extras:"Extras Incluidos",
     signature_title:"Aceptación y Firma del Cliente",
     signature_desc:"Al firmar esta propuesta, el cliente confirma haber recibido, leído y aceptado los términos, precios y condiciones del proyecto detallados en este documento.",
-    draw_signature:"Firma (dibuja con el dedo o mouse)", clear_signature:"✕ Limpiar",
+    draw_signature:"Firma (dibuja con el dedo o mouse)", clear_signature:"&#10005; Limpiar",
     print_name:"Nombre completo (letra de molde)", acceptance_date:"Fecha de aceptación",
     signature_label:"Firma", footer_quote:'"Exigir garantías no es desconfianza — es tu derecho."',
     guino_suffix:"salarios mínimos anuales — el retorno total de tu casita a 10 años trabajando para ti.",
@@ -730,14 +730,14 @@ const T = {
     extras_title:"Extras & Additional Costs", return_projection:"Return Projection",
     concept:"CONCEPT", year1:"YEAR 1", year5:"YEAR 5", year10:"YEAR 10",
     min_wages_label:"annual minimum wages",
-    generate_proposal:"▶  GENERATE CLIENT PROPOSAL",
-    back_btn:"← Back to estimator", pdf_client:"⬇ Client PDF", pdf_ops:"⬇ Operations PDF",
+    generate_proposal:"&#9658;  GENERATE CLIENT PROPOSAL",
+    back_btn:"&#8592; Back to estimator", pdf_client:"&#11015; Client PDF", pdf_ops:"&#11015; Operations PDF",
     prop_sub:"Smart Builds · Phoenix, Arizona · HB 2720", prop_title:"Project Proposal",
     client_label:"Client", your_project:"Your Project", surface:"Area",
     included_extras:"Included Extras",
     signature_title:"Client Acceptance & Signature",
     signature_desc:"By signing this proposal, the client confirms having received, read and accepted the terms, prices and conditions of the project detailed in this document.",
-    draw_signature:"Signature (draw with finger or mouse)", clear_signature:"✕ Clear",
+    draw_signature:"Signature (draw with finger or mouse)", clear_signature:"&#10005; Clear",
     print_name:"Full name (print)", acceptance_date:"Acceptance date",
     signature_label:"Signature", footer_quote:'"Demanding guarantees is not distrust — it is your right."',
     guino_suffix:"annual minimum wages — your casita's 10-year return working for you.",
@@ -979,7 +979,7 @@ function verPropuesta() {
       const name = LANG === "en" ? e.nameEN : e.nameES;
       const div = document.createElement("div");
       div.className = "prop-row";
-      div.innerHTML = `<span>✓ ${name}</span><span></span>`;
+      div.innerHTML = `<span>&#10003; ${name}</span><span></span>`;
       extrasList.appendChild(div);
     }
   });
@@ -1037,7 +1037,7 @@ function initCanvas() {
 function setFirma() {
   _hasFirma = true;
   const st = document.getElementById("firma-status");
-  st.textContent = LANG === "en" ? "✓ Signature captured" : "✓ Firma capturada";
+  st.textContent = LANG === "en" ? "&#10003; Signature captured" : "&#10003; Firma capturada";
   st.style.color = "var(--green)";
 }
 
@@ -1325,7 +1325,7 @@ async function guardarCotizacion() {
   // Save to Google Sheets
   const res = await apiCall({ action:"save_quote", quote });
   const banner = document.getElementById("save-banner");
-  banner.textContent = res.ok ? "✓ Cotización guardada" : "✓ Guardada localmente (sin conexión)";
+  banner.textContent = res.ok ? "&#10003; Cotización guardada" : "&#10003; Guardada localmente (sin conexión)";
   banner.className = "save-banner show" + (res.ok ? "" : " error");
   setTimeout(() => banner.classList.remove("show"), 3000);
 }
@@ -1404,10 +1404,10 @@ async function loadQuotes() {
       '<td style="text-align:right;font-weight:600;color:var(--green)">'+fmtD(parseInt(q.total||0))+'</td>' +
       '<td><span class="badge '+estado+'">'+estado+'</span>'+fechaCierre+'</td>' +
       '<td style="white-space:nowrap">' +
-        (isAdmin && estado === "abierto" ? '<button class="close-btn" onclick="markClosed(''+q.id+'')">✓ Cerrar</button> ' : '') +
-        (isAdmin && estado === "abierto" ? '<button class="del-btn" onclick="markLost(''+q.id+'')">✗ Perdida</button> ' : '') +
-        (isAdmin ? '<button class="copy-btn" onclick="copyQuote(''+q.id+'')">⧉ Copia</button> ' : '') +
-        (isAdmin ? '<button class="del-btn" onclick="deleteQuote(''+q.id+'')">🗑</button>' : '') +
+        (isAdmin && estado === "abierto" ? '<button class="close-btn" onclick="markClosed(''+q.id+'')">&#10003; Cerrar</button> ' : '') +
+        (isAdmin && estado === "abierto" ? '<button class="del-btn" onclick="markLost(''+q.id+'')">&#10007; Perdida</button> ' : '') +
+        (isAdmin ? '<button class="copy-btn" onclick="copyQuote(''+q.id+'')">&#10697; Copia</button> ' : '') +
+        (isAdmin ? '<button class="del-btn" onclick="deleteQuote(''+q.id+'')">&#128465;</button>' : '') +
       '</td>' +
     '</tr>';
   }).join("");
@@ -1415,7 +1415,7 @@ async function loadQuotes() {
 
 async function markClosed(id) {
   const res = await apiCall({ action:"update_quote_status", id, status:"cerrado", fecha_cierre:new Date().toISOString().slice(0,10), rol:CURRENT_USER.rol });
-  if (res.ok) { loadQuotes(); showBanner("✓ Cotización cerrada — "+new Date().toLocaleDateString("es-MX")); }
+  if (res.ok) { loadQuotes(); showBanner("&#10003; Cotización cerrada — "+new Date().toLocaleDateString("es-MX")); }
   else showBanner("Error al actualizar", true);
 }
 
@@ -1428,7 +1428,7 @@ async function markLost(id) {
 async function copyQuote(id) {
   const newCode = genCode();
   const res = await apiCall({ action:"copy_quote", id, new_code:newCode, rol:CURRENT_USER.rol });
-  if (res.ok) { loadQuotes(); showBanner("⧉ Copia creada: "+newCode); }
+  if (res.ok) { loadQuotes(); showBanner("&#10697; Copia creada: "+newCode); }
   else showBanner("Error al copiar", true);
 }
 
@@ -1451,7 +1451,7 @@ async function loadUsers() {
     '<td>'+u.usuario+'</td>' +
     '<td><span class="badge '+u.rol+'">'+u.rol+'</span></td>' +
     '<td><span style="color:'+(u.activo?"var(--green)":"var(--red)")+'">'+  (u.activo?"Activo":"Inactivo")+'</span></td>' +
-    '<td>'+(u.id !== "U0001" ? '<button class="del-btn" onclick="deleteUser(''+u.id+'')">✕</button>' : "")+'</td>' +
+    '<td>'+(u.id !== "U0001" ? '<button class="del-btn" onclick="deleteUser(''+u.id+'')">&#10005;</button>' : "")+'</td>' +
     '</tr>'
   ).join("");
 }
@@ -1468,7 +1468,7 @@ async function addUser() {
     document.getElementById("new-usuario").value = "";
     document.getElementById("new-password").value = "";
     loadUsers();
-    showBanner("✓ Usuario creado");
+    showBanner("&#10003; Usuario creado");
   }
 }
 
