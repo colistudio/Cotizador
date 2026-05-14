@@ -6,6 +6,7 @@
 <title>Coli Studio — Estimator / Cotizador</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDrpi479laD0IQ2stlLfJ_dhBMIEDPmRV4&libraries=places&callback=initAutocomplete" async defer></script>
 <style>
 :root {
@@ -238,29 +239,37 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
 <div id="admin-panel">
   <div class="admin-box">
     <div class="admin-hdr">
-      <div class="admin-hdr-title">Panel de Administración</div>
-      <button class="admin-close" onclick="closeAdmin()">✕ Cerrar</button>
+      <div class="admin-hdr-title">Panel de Administración — Coli Studio</div>
+      <button class="admin-close" onclick="closeAdmin()">✕ Salir</button>
     </div>
     <div class="admin-tabs">
-      <div class="admin-tab active" onclick="adminTab('quotes')">Cotizaciones</div>
-      <div class="admin-tab" onclick="adminTab('users')">Usuarios</div>
-      <div class="admin-tab" onclick="adminTab('stats')">Estadísticas</div>
+      <div class="admin-tab active" onclick="adminTab('quotes')">📋 Cotizaciones</div>
+      <div class="admin-tab" onclick="adminTab('users')">👥 Usuarios</div>
+      <div class="admin-tab" onclick="adminTab('stats')">📊 Estadísticas</div>
     </div>
     <div class="admin-body">
 
       <!-- QUOTES TAB -->
       <div id="tab-quotes">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
-          <div style="font-size:0.75rem;color:var(--gray)">Total de cotizaciones registradas</div>
-          <button class="ub-btn" onclick="loadQuotes()">↻ Actualizar</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="font-size:0.75rem;color:var(--gray)">Registro de cotizaciones del equipo</div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <select id="filter-status" onchange="loadQuotes()" style="font-size:0.78rem;padding:0.3rem 0.6rem;border:1px solid var(--border);border-radius:3px">
+              <option value="">Todos los estados</option>
+              <option value="abierto">Abierto</option>
+              <option value="cerrado">Cerrado</option>
+              <option value="perdido">Perdido</option>
+            </select>
+            <button class="ub-btn" onclick="loadQuotes()">↻ Actualizar</button>
+          </div>
         </div>
         <div style="overflow-x:auto">
           <table class="admin-table" id="quotes-table">
             <thead><tr>
-              <th>Fecha</th><th>Cliente</th><th>Ejecutivo</th><th>Tipo</th>
-              <th>ft²</th><th>Total</th><th>Retorno 10a</th><th></th>
+              <th>Código</th><th>Fecha</th><th>Cliente</th><th>Ejecutivo</th>
+              <th>Modelo</th><th>ft²</th><th>Descuento</th><th>Total</th><th>Estado</th><th>Acciones</th>
             </tr></thead>
-            <tbody id="quotes-tbody"><tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem">Cargando...</td></tr></tbody>
+            <tbody id="quotes-tbody"><tr><td colspan="10" style="text-align:center;color:var(--gray);padding:2rem">Cargando...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -292,23 +301,62 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
 
       <!-- STATS TAB -->
       <div id="tab-stats" style="display:none">
-        <div class="stats-grid" id="stats-grid">
-          <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Cotizaciones</div></div>
-          <div class="stat-card"><div class="stat-num" id="stat-valor">—</div><div class="stat-label">Valor total</div></div>
-          <div class="stat-card"><div class="stat-num" id="stat-promedio">—</div><div class="stat-label">Promedio por cotización</div></div>
-          <div class="stat-card"><div class="stat-num" id="stat-agentes">—</div><div class="stat-label">Vendedores activos</div></div>
+
+        <div class="stats-section">
+          <div class="stats-section-title">1 — Resumen Ejecutivo</div>
+          <div class="stats-grid" style="grid-template-columns:repeat(6,1fr)">
+            <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Cotizaciones</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-cerradas">—</div><div class="stat-label">Cerradas</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-conversion">—</div><div class="stat-label">Conversión</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-valor">—</div><div class="stat-label">Total cotizado</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-cerrado-val">—</div><div class="stat-label">Total cerrado</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-descuentos">—</div><div class="stat-label">En descuentos</div></div>
+          </div>
         </div>
-        <div style="overflow-x:auto">
-          <table class="admin-table" id="stats-table">
-            <thead><tr><th>Ejecutivo</th><th>Cotizaciones</th><th>Valor total</th><th>Promedio</th></tr></thead>
-            <tbody id="stats-tbody"></tbody>
-          </table>
+
+        <div class="stats-section">
+          <div class="stats-section-title">2 — Visualización</div>
+          <div class="charts-grid">
+            <div class="chart-card"><div class="chart-card-title">Pipeline — Cotizado vs Cerrado por vendedor</div><div class="chart-wrap"><canvas id="chart-pipeline"></canvas></div></div>
+            <div class="chart-card"><div class="chart-card-title">Cotizaciones por mes</div><div class="chart-wrap"><canvas id="chart-timeline"></canvas></div></div>
+            <div class="chart-card"><div class="chart-card-title">Modelos más cotizados</div><div class="chart-wrap"><canvas id="chart-models"></canvas></div></div>
+            <div class="chart-card"><div class="chart-card-title">Extras más solicitados</div><div class="chart-wrap"><canvas id="chart-extras"></canvas></div></div>
+          </div>
         </div>
+
+        <div class="stats-section">
+          <div class="stats-section-title">3 — Rendimiento por Vendedor</div>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead><tr><th>Ejecutivo</th><th>Cotizaciones</th><th>Cerradas</th><th>Conversión</th><th>Total cotizado</th><th>Total cerrado</th><th>Desc. promedio</th><th>Ticket promedio</th></tr></thead>
+              <tbody id="stats-agents"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <div class="stats-section-title">4 — Análisis de Descuentos</div>
+          <div class="charts-grid" style="grid-template-columns:1fr 2fr">
+            <div class="stat-card" style="text-align:center">
+              <div class="stat-num" id="stat-desc-total">—</div>
+              <div class="stat-label">Total en descuentos</div>
+              <div style="margin-top:0.5rem;font-size:0.75rem;color:var(--gray)" id="stat-desc-prom">—</div>
+              <div style="margin-top:0.25rem;font-size:0.75rem;color:var(--red)" id="stat-desc-max">—</div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="admin-table">
+                <thead><tr><th>Ejecutivo</th><th>Con descuento</th><th>Total desc.</th><th>Desc. prom. (%)</th><th>Mayor desc.</th></tr></thead>
+                <tbody id="stats-discounts"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
   </div>
-</div>
+
 
 
 <div class="header">
@@ -335,7 +383,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);color:var(--dark);mi
     <div class="section-body">
       <div class="field"><label data-t="full_name">Nombre completo</label><input type="text" id="cliente" data-ph="owner_name" placeholder="Nombre del propietario"></div>
       <div class="field"><label data-t="phone">Teléfono</label><input type="tel" id="telefono" placeholder="(602) 000-0000"></div>
-      <div class="field"><label data-t="property_address">Dirección de la propiedad</label><input type="text" id="direccion" data-ph="address_ph" placeholder="Dirección en Phoenix, AZ"></div>
+      <div class="field"><label data-t="property_address">Dirección de la propiedad</label><input type="text" id="direccion" data-ph="address_ph" placeholder="Dirección en Phoenix, AZ" autocomplete="off"></div>
       <div class="field-row">
         <div class="field"><label data-t="date">Fecha</label><input type="date" id="fecha"></div>
         <div class="field"><label data-t="agent">Ejecutivo</label><input type="text" id="ejecutivo" data-ph="agent_name" placeholder="Nombre"></div>
@@ -1156,7 +1204,7 @@ document.getElementById("firma-fecha").valueAsDate = new Date();
 calcular();
 
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwvhyQIQOcoRKNskKx7oaNlbwtFz-QNYwmZTuBc6xXhteFAk4sYlWR2pGYQQhRdlYZv/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwr8QUuaCOQKxZbuiTd7EKWGcXkfoYZZA3Ms5l3lZbxZuEr7lDokcvYFSxSSQyBX-CQ/exec";
 let CURRENT_USER = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────────
@@ -1246,6 +1294,7 @@ async function guardarCotizacion() {
 
   const quote = {
     fecha:         document.getElementById("fecha").value,
+    codigo:        genCode(),
     ejecutivo:     CURRENT_USER.nombre,
     ejecutivo_id:  CURRENT_USER.id,
     cliente:       document.getElementById("cliente").value,
@@ -1282,18 +1331,22 @@ async function guardarCotizacion() {
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────────
+let _charts = {};
+
 function openAdmin() {
   document.getElementById("admin-panel").classList.add("show");
+  document.body.style.overflow = "hidden";
   loadQuotes();
 }
 
 function closeAdmin() {
   document.getElementById("admin-panel").classList.remove("show");
+  document.body.style.overflow = "";
 }
 
 function adminTab(tab) {
   ["quotes","users","stats"].forEach(t => {
-    document.getElementById(`tab-${t}`).style.display = t === tab ? "block" : "none";
+    document.getElementById("tab-"+t).style.display = t === tab ? "block" : "none";
   });
   document.querySelectorAll(".admin-tab").forEach((el,i) => {
     el.classList.toggle("active", ["quotes","users","stats"][i] === tab);
@@ -1303,24 +1356,80 @@ function adminTab(tab) {
   if (tab === "stats")  loadStats();
 }
 
+function fmtK(n) { return n >= 1000 ? "$"+(n/1000).toFixed(0)+"K" : "$"+n.toLocaleString(); }
+function fmtD(n) { return "$"+Math.round(n).toLocaleString(); }
+
+function genCode() {
+  const now = new Date();
+  const y = now.getFullYear().toString().slice(-2);
+  const m = String(now.getMonth()+1).padStart(2,"0");
+  const d = String(now.getDate()).padStart(2,"0");
+  const r = Math.floor(Math.random()*900)+100;
+  return "CS-"+y+m+d+"-"+r;
+}
+
+function showBanner(msg, isError) {
+  const b = document.getElementById("save-banner");
+  b.textContent = msg;
+  b.className = "save-banner show" + (isError ? " error" : "");
+  setTimeout(()=>b.classList.remove("show"),3500);
+}
+
 async function loadQuotes() {
   const res = await apiCall({ action:"get_quotes", rol:CURRENT_USER.rol, user_id:CURRENT_USER.id });
   const tbody = document.getElementById("quotes-tbody");
   if (!res.ok || !res.quotes.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem">Sin cotizaciones registradas</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--gray);padding:2rem">Sin cotizaciones registradas</td></tr>';
     return;
   }
-  tbody.innerHTML = res.quotes.reverse().map(q => `
-    <tr>
-      <td>${q.fecha || q.timestamp?.slice(0,10)}</td>
-      <td><strong>${q.cliente || "—"}</strong><br><span style="font-size:0.75rem;color:var(--gray)">${q.telefono||""}</span></td>
-      <td>${q.ejecutivo||"—"}</td>
-      <td style="font-size:0.8rem">${q.tipo||"—"}<br><span style="color:var(--gray)">${q.modelo||""}</span></td>
-      <td style="text-align:right">${parseInt(q.sqft||0).toLocaleString()}</td>
-      <td style="text-align:right;font-weight:600;color:var(--green)">$${parseInt(q.total||0).toLocaleString()}</td>
-      <td style="text-align:right">$${parseInt(q.retorno_y10||0).toLocaleString()}</td>
-      <td>${CURRENT_USER.rol==="admin" ? `<button class="del-btn" onclick="deleteQuote('${q.id}')">✕</button>` : ""}</td>
-    </tr>`).join("");
+  const filter = (document.getElementById("filter-status")||{}).value || "";
+  let quotes = res.quotes.slice().reverse();
+  if (filter) quotes = quotes.filter(q => (q.estado||"abierto") === filter);
+
+  const isAdmin = CURRENT_USER.rol === "admin";
+  tbody.innerHTML = quotes.map(q => {
+    const estado = q.estado || "abierto";
+    const code   = q.codigo || "—";
+    const desc   = parseFloat(q.descuento||0);
+    const descAmt= (parseFloat(q.subtotal||0) * desc / 100);
+    const fechaCierre = q.fecha_cierre ? (' <span style="font-size:0.65rem;color:var(--gray)">cerrado '+q.fecha_cierre+'</span>') : '';
+    return '<tr>' +
+      '<td><span class="quote-code">'+code+'</span></td>' +
+      '<td style="font-size:0.8rem">'+(q.fecha||q.timestamp?.slice(0,10)||"—")+'</td>' +
+      '<td><strong>'+(q.cliente||"—")+'</strong><br><span style="font-size:0.7rem;color:var(--gray)">'+(q.telefono||"")+'</span></td>' +
+      '<td>'+(q.ejecutivo||"—")+'</td>' +
+      '<td style="font-size:0.78rem">'+(q.modelo||"—")+'</td>' +
+      '<td style="text-align:right">'+parseInt(q.sqft||0).toLocaleString()+'</td>' +
+      '<td style="text-align:right;color:var(--red)">'+(desc > 0 ? "-"+fmtD(descAmt)+" ("+desc+"%)" : "—")+'</td>' +
+      '<td style="text-align:right;font-weight:600;color:var(--green)">'+fmtD(parseInt(q.total||0))+'</td>' +
+      '<td><span class="badge '+estado+'">'+estado+'</span>'+fechaCierre+'</td>' +
+      '<td style="white-space:nowrap">' +
+        (isAdmin && estado === "abierto" ? '<button class="close-btn" onclick="markClosed(''+q.id+'')">✓ Cerrar</button> ' : '') +
+        (isAdmin && estado === "abierto" ? '<button class="del-btn" onclick="markLost(''+q.id+'')">✗ Perdida</button> ' : '') +
+        (isAdmin ? '<button class="copy-btn" onclick="copyQuote(''+q.id+'')">⧉ Copia</button> ' : '') +
+        (isAdmin ? '<button class="del-btn" onclick="deleteQuote(''+q.id+'')">🗑</button>' : '') +
+      '</td>' +
+    '</tr>';
+  }).join("");
+}
+
+async function markClosed(id) {
+  const res = await apiCall({ action:"update_quote_status", id, status:"cerrado", fecha_cierre:new Date().toISOString().slice(0,10), rol:CURRENT_USER.rol });
+  if (res.ok) { loadQuotes(); showBanner("✓ Cotización cerrada — "+new Date().toLocaleDateString("es-MX")); }
+  else showBanner("Error al actualizar", true);
+}
+
+async function markLost(id) {
+  if (!confirm("¿Marcar como perdida?")) return;
+  const res = await apiCall({ action:"update_quote_status", id, status:"perdido", rol:CURRENT_USER.rol });
+  if (res.ok) loadQuotes();
+}
+
+async function copyQuote(id) {
+  const newCode = genCode();
+  const res = await apiCall({ action:"copy_quote", id, new_code:newCode, rol:CURRENT_USER.rol });
+  if (res.ok) { loadQuotes(); showBanner("⧉ Copia creada: "+newCode); }
+  else showBanner("Error al copiar", true);
 }
 
 async function deleteQuote(id) {
@@ -1333,17 +1442,18 @@ async function loadUsers() {
   const res = await apiCall({ action:"get_users", rol:CURRENT_USER.rol });
   const tbody = document.getElementById("users-tbody");
   if (!res.ok || !res.users.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:2rem">Sin usuarios</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:2rem">Sin usuarios</td></tr>';
     return;
   }
-  tbody.innerHTML = res.users.map(u => `
-    <tr>
-      <td><strong>${u.nombre}</strong></td>
-      <td>${u.usuario}</td>
-      <td><span class="badge ${u.rol}">${u.rol}</span></td>
-      <td><span style="color:${u.activo?"var(--green)":"var(--red)"}">${u.activo?"Activo":"Inactivo"}</span></td>
-      <td>${u.id !== "U0001" ? `<button class="del-btn" onclick="deleteUser('${u.id}')">✕</button>` : ""}</td>
-    </tr>`).join("");
+  tbody.innerHTML = res.users.map(u =>
+    '<tr>' +
+    '<td><strong>'+u.nombre+'</strong></td>' +
+    '<td>'+u.usuario+'</td>' +
+    '<td><span class="badge '+u.rol+'">'+u.rol+'</span></td>' +
+    '<td><span style="color:'+(u.activo?"var(--green)":"var(--red)")+'">'+  (u.activo?"Activo":"Inactivo")+'</span></td>' +
+    '<td>'+(u.id !== "U0001" ? '<button class="del-btn" onclick="deleteUser(''+u.id+'')">✕</button>' : "")+'</td>' +
+    '</tr>'
+  ).join("");
 }
 
 async function addUser() {
@@ -1352,13 +1462,13 @@ async function addUser() {
   const password = document.getElementById("new-password").value;
   const rol      = document.getElementById("new-rol").value;
   if (!nombre || !usuario || !password) { alert("Completa todos los campos"); return; }
-
   const res = await apiCall({ action:"save_user", rol:CURRENT_USER.rol, user:{ nombre, usuario, password, rol } });
   if (res.ok) {
     document.getElementById("new-nombre").value = "";
     document.getElementById("new-usuario").value = "";
     document.getElementById("new-password").value = "";
     loadUsers();
+    showBanner("✓ Usuario creado");
   }
 }
 
@@ -1368,38 +1478,187 @@ async function deleteUser(id) {
   if (res.ok) loadUsers();
 }
 
+function destroyChart(id) {
+  if (_charts[id]) { try { _charts[id].destroy(); } catch(e){} delete _charts[id]; }
+}
+
 async function loadStats() {
   const res = await apiCall({ action:"get_quotes", rol:"admin", user_id:CURRENT_USER.id });
   if (!res.ok) return;
   const quotes = res.quotes || [];
 
-  const total   = quotes.length;
-  const valor   = quotes.reduce((s,q) => s + (parseInt(q.total)||0), 0);
-  const prom    = total ? Math.round(valor/total) : 0;
+  const total    = quotes.length;
+  const cerradas = quotes.filter(q => (q.estado||"abierto") === "cerrado").length;
+  const conv     = total ? Math.round(cerradas/total*100) : 0;
+  const valor    = quotes.reduce((s,q) => s+(parseInt(q.total)||0), 0);
+  const cerVal   = quotes.filter(q=>(q.estado||"abierto")==="cerrado").reduce((s,q)=>s+(parseInt(q.total)||0),0);
+  const descTotal= quotes.reduce((s,q) => {
+    const d = parseFloat(q.descuento||0);
+    const sub = parseFloat(q.subtotal||0) || (parseFloat(q.sqft||0)*parseFloat(q.precio_ft||270));
+    return s + (sub * d / 100);
+  }, 0);
 
+  document.getElementById("stat-total").textContent      = total;
+  document.getElementById("stat-cerradas").textContent   = cerradas;
+  document.getElementById("stat-conversion").textContent = conv+"%";
+  document.getElementById("stat-valor").textContent      = fmtK(valor);
+  document.getElementById("stat-cerrado-val").textContent= fmtK(cerVal);
+  document.getElementById("stat-descuentos").textContent = fmtK(descTotal);
+
+  // BY AGENT
   const byAgent = {};
   quotes.forEach(q => {
-    if (!byAgent[q.ejecutivo]) byAgent[q.ejecutivo] = { count:0, total:0 };
-    byAgent[q.ejecutivo].count++;
-    byAgent[q.ejecutivo].total += parseInt(q.total)||0;
+    const a = q.ejecutivo || "Sin asignar";
+    if (!byAgent[a]) byAgent[a] = {count:0,cerradas:0,total:0,cerVal:0,descTotal:0,descCount:0,maxDesc:0,descPcts:[]};
+    byAgent[a].count++;
+    byAgent[a].total += parseInt(q.total)||0;
+    if ((q.estado||"abierto")==="cerrado") { byAgent[a].cerradas++; byAgent[a].cerVal += parseInt(q.total)||0; }
+    const d = parseFloat(q.descuento||0);
+    if (d > 0) {
+      byAgent[a].descCount++;
+      const sub = parseFloat(q.subtotal||0)||(parseFloat(q.sqft||0)*270);
+      byAgent[a].descTotal += sub*d/100;
+      byAgent[a].maxDesc = Math.max(byAgent[a].maxDesc,d);
+      byAgent[a].descPcts.push(d);
+    }
   });
 
-  document.getElementById("stat-total").textContent = total;
-  document.getElementById("stat-valor").textContent = "$${(valor/1000).toFixed(0)}K";
-  document.getElementById("stat-promedio").textContent = "$${(prom/1000).toFixed(0)}K";
-  document.getElementById("stat-agentes").textContent = Object.keys(byAgent).length;
+  document.getElementById("stats-agents").innerHTML = Object.entries(byAgent)
+    .sort((a,b)=>b[1].cerVal-a[1].cerVal)
+    .map(([n,d]) => {
+      const conv = d.count ? Math.round(d.cerradas/d.count*100) : 0;
+      const avgDescAmt = d.descCount ? Math.round(d.descTotal/d.descCount) : 0;
+      const avgTicket = d.count ? Math.round(d.total/d.count) : 0;
+      return '<tr>' +
+        '<td><strong>'+n+'</strong></td>' +
+        '<td style="text-align:right">'+d.count+'</td>' +
+        '<td style="text-align:right">'+d.cerradas+'</td>' +
+        '<td style="text-align:right"><span class="badge '+(conv>=50?"cerrado":"abierto")+'">'+conv+'%</span></td>' +
+        '<td style="text-align:right;color:var(--blue)">'+fmtD(d.total)+'</td>' +
+        '<td style="text-align:right;font-weight:600;color:var(--green)">'+fmtD(d.cerVal)+'</td>' +
+        '<td style="text-align:right;color:var(--red)">'+fmtD(avgDescAmt)+'</td>' +
+        '<td style="text-align:right">'+fmtD(avgTicket)+'</td>' +
+      '</tr>';
+    }).join("");
 
-  document.getElementById("stats-tbody").innerHTML = Object.entries(byAgent)
-    .sort((a,b) => b[1].total - a[1].total)
-    .map(([nombre, d]) => `
-      <tr>
-        <td><strong>${nombre}</strong></td>
-        <td style="text-align:right">${d.count}</td>
-        <td style="text-align:right;color:var(--green);font-weight:600">$${d.total.toLocaleString()}</td>
-        <td style="text-align:right">$${Math.round(d.total/d.count).toLocaleString()}</td>
-      </tr>`).join("");
+  // DISCOUNTS
+  const descWithDiscount = quotes.filter(q=>parseFloat(q.descuento||0)>0);
+  const maxDescQ = quotes.reduce((m,q)=>Math.max(m,parseFloat(q.descuento||0)),0);
+  const avgDescPct = descWithDiscount.length ? (descWithDiscount.reduce((s,q)=>s+parseFloat(q.descuento||0),0)/descWithDiscount.length).toFixed(1) : 0;
+
+  document.getElementById("stat-desc-total").textContent = fmtK(descTotal);
+  document.getElementById("stat-desc-prom").textContent  = "Promedio: "+avgDescPct+"% · "+descWithDiscount.length+" cotizaciones con descuento";
+  document.getElementById("stat-desc-max").textContent   = "Mayor descuento aplicado: "+maxDescQ+"%";
+
+  document.getElementById("stats-discounts").innerHTML = Object.entries(byAgent)
+    .filter(([n,d])=>d.descCount>0)
+    .sort((a,b)=>b[1].descTotal-a[1].descTotal)
+    .map(([n,d]) => {
+      const avgPct = d.descPcts.length ? (d.descPcts.reduce((s,v)=>s+v,0)/d.descPcts.length).toFixed(1) : 0;
+      return '<tr>' +
+        '<td><strong>'+n+'</strong></td>' +
+        '<td style="text-align:right">'+d.descCount+'</td>' +
+        '<td style="text-align:right;color:var(--red)">'+fmtD(d.descTotal)+'</td>' +
+        '<td style="text-align:right">'+avgPct+'%</td>' +
+        '<td style="text-align:right">'+d.maxDesc+'%</td>' +
+      '</tr>';
+    }).join("");
+
+  // ── CHARTS ──────────────────────────────────────────────────────
+  if (typeof Chart === "undefined") return;
+  const GOLD="#C9A84C", GREEN="#1A6B45", BLUE="#1a3a5c", RED="#C0392B";
+
+  // Chart 1: Pipeline bar
+  destroyChart("pipeline");
+  const agentNames = Object.keys(byAgent);
+  const ctx1 = document.getElementById("chart-pipeline").getContext("2d");
+  _charts.pipeline = new Chart(ctx1, {
+    type:"bar",
+    data:{
+      labels:agentNames,
+      datasets:[
+        {label:"Total cotizado",data:agentNames.map(n=>byAgent[n].total),backgroundColor:BLUE+"88",borderColor:BLUE,borderWidth:1},
+        {label:"Total cerrado", data:agentNames.map(n=>byAgent[n].cerVal),backgroundColor:GREEN+"88",borderColor:GREEN,borderWidth:1}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"top",labels:{font:{size:11},boxWidth:12}}},
+      scales:{y:{ticks:{callback:v=>"$"+(v/1000).toFixed(0)+"K",font:{size:10}},grid:{color:"#f0f0ee"}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  // Chart 2: Timeline
+  destroyChart("timeline");
+  const monthMap = {};
+  quotes.forEach(q => {
+    const ts = q.timestamp||q.fecha||"";
+    const ym = ts.slice(0,7);
+    if (!ym || ym.length < 7) return;
+    if (!monthMap[ym]) monthMap[ym] = {total:0,cerradas:0};
+    monthMap[ym].total++;
+    if ((q.estado||"abierto")==="cerrado") monthMap[ym].cerradas++;
+  });
+  const months = Object.keys(monthMap).sort();
+  const ctx2 = document.getElementById("chart-timeline").getContext("2d");
+  _charts.timeline = new Chart(ctx2, {
+    type:"line",
+    data:{
+      labels:months.length ? months : ["Sin datos"],
+      datasets:[
+        {label:"Cotizaciones",data:months.map(m=>monthMap[m].total),borderColor:BLUE,backgroundColor:BLUE+"22",tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:BLUE},
+        {label:"Cerradas",   data:months.map(m=>monthMap[m].cerradas),borderColor:GREEN,backgroundColor:GREEN+"22",tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:GREEN}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"top",labels:{font:{size:11},boxWidth:12}}},
+      scales:{y:{ticks:{stepSize:1,font:{size:10}},min:0,grid:{color:"#f0f0ee"}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  // Chart 3: Models donut
+  destroyChart("models");
+  const modelMap = {};
+  quotes.forEach(q => { const m = (q.modelo||"Otro").split("—")[0].trim(); modelMap[m] = (modelMap[m]||0)+1; });
+  const modelEntries = Object.entries(modelMap).sort((a,b)=>b[1]-a[1]);
+  const ctx3 = document.getElementById("chart-models").getContext("2d");
+  const chartColors = [BLUE,GREEN,GOLD,RED,"#7c3aed","#0891b2","#d97706","#059669"];
+  _charts.models = new Chart(ctx3, {
+    type:"doughnut",
+    data:{
+      labels:modelEntries.map(e=>e[0]),
+      datasets:[{data:modelEntries.map(e=>e[1]),backgroundColor:chartColors.map(c=>c+"cc"),borderColor:chartColors,borderWidth:2}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:12}}}}
+  });
+
+  // Chart 4: Extras horizontal bar
+  destroyChart("extras");
+  const extrasMap = {};
+  quotes.forEach(q => {
+    try {
+      const ex = typeof q.extras_json === "string" ? JSON.parse(q.extras_json) : (q.extras_json||[]);
+      if (Array.isArray(ex)) ex.forEach(e => {
+        const name = e.nameES || e.name || "Extra";
+        extrasMap[name] = (extrasMap[name]||0)+1;
+      });
+    } catch(e){}
+  });
+  const extrasEntries = Object.entries(extrasMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ctx4 = document.getElementById("chart-extras").getContext("2d");
+  if (extrasEntries.length) {
+    _charts.extras = new Chart(ctx4, {
+      type:"bar",
+      data:{
+        labels:extrasEntries.map(e=>e[0].length>22?e[0].slice(0,20)+"…":e[0]),
+        datasets:[{label:"Veces solicitado",data:extrasEntries.map(e=>e[1]),backgroundColor:GOLD+"bb",borderColor:GOLD,borderWidth:1}]
+      },
+      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{ticks:{stepSize:1,font:{size:10}},min:0,grid:{color:"#f0f0ee"}},y:{ticks:{font:{size:10}}}}}
+    });
+  } else {
+    ctx4.canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--gray);font-size:0.85rem">Sin datos de extras</div>';
+  }
 }
-
 
 // ── GOOGLE PLACES AUTOCOMPLETE ────────────────────────────────────────
 function initAutocomplete() {
